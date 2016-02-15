@@ -1,0 +1,25 @@
+
+.modal-content-container{
+  transition: transform .2s cubic-bezier(0.215, 0.610, 0.355, 1.000);
+  transform: translateY(400px);
+  &.open{
+    transform: translateY(0);
+  }
+}
+
+@media(min-width:415px){
+  .modal-content-container{
+    transform: translateY(400px);
+    &.open{
+      transform: translateY(0);
+    }
+  }
+}
+@media(max-width:414px){
+  .modal-content-container{
+    transform: translateX(400px);
+    &.open{
+      transform: translateX(0);
+    }
+  }
+}

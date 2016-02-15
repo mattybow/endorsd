@@ -1,0 +1,94 @@
+@import "./variables.scss";
+.auto-complete-container{
+  height:0;
+  overflow:hidden;
+  z-index:1;
+  &.open{
+    height:100px;
+    overflow:initial;
+  }
+}
+.dropdown-container{
+  border-radius:2px;
+  background-color:rgba(0,0,0,.8);
+  box-shadow: rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.239216) 0px 1px 4px;
+  padding:1em 0;
+}
+.dropdown-choice{
+  &:hover{
+    cursor:pointer;
+  }
+}
+.endorser-choice{
+  transition:background .2s ease;
+  background-color:transparent;
+  .endorser-choice-name{
+    margin-left:20;
+    border-bottom:1px solid $grey;
+    padding:1em 0;
+  }
+}
+
+.tags-container{
+  padding:10px;
+}
+
+.highlighted .endorser-choice{
+  background-color:rgba(100,100,100,.1);
+}
+
+.dropdown-choice:last-child .endorser-choice-name{
+  border:none;
+}
+.new-choice-tag{
+  border-radius:2px;
+  padding:5px;
+  font-size:.8em;
+  width:100%;
+}
+
+.tag-choice{
+  background-color:$whiteBarney;
+  border-radius:2px;
+  padding:.2em .5em;
+  margin: .5em .2em;
+  border: 1px solid transparent;
+  transition:background .2s ease, border .2s ease;
+  &:hover{
+    cursor:pointer;
+  }
+}
+
+.selected .tag-choice{
+  background-color:$lightBarney;
+  color:rgba(255,255,255,.9);
+}
+
+.highlighted .tag-choice{
+  border: 1px solid $barney;
+}
+
+.input-error-message{
+  transition: opacity .2s ease, transform .3s ease;
+  opacity:0;
+  transform: translateY(-20px);
+  position:absolute;
+  pointer-events:none;
+  top:-.5em;
+  left:0;
+  font-size:.7em;
+  &.show{
+    transform: translateY(0px);
+    opacity:1;
+  }
+}
+
+@media(min-width:415px){
+  .tag-choice:hover{
+    background-color:$lightBarney;
+  }
+  .selected:hover{
+    background-color:$whiteBarney;
+    color:rgba(0,0,0,.8);
+  }
+}

@@ -1,0 +1,31 @@
+.tweet-list{
+  list-style:none;
+  padding:0;
+}
+.tweet-list-item{
+  padding: 10px 0;
+}
+.tweet-content{
+  flex:1 2 400px;
+}
+.remove-tweet-holder{
+  font-size:2em;
+  padding:0 0 0 1em;
+  color:#8F2CD8;
+}
+.add-endorsement-holder{
+  font-size:2em;
+  padding:0 1em 0 0;
+  color:#8F2CD8;
+}
+@media(max-width:414px){
+  .tweet-content{
+    flex:1 2 220px;
+  }
+  .remove-tweet-holder{
+    padding:0 5px 0 .5em;
+  }
+  .add-endorsement-holder{
+    padding:0 .5em 0 0;
+  }
+}

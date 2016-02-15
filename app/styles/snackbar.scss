@@ -1,0 +1,58 @@
+@import "./variables.scss";
+
+.snackbar-container{
+  position:fixed;
+  bottom:0;
+  right:0;
+  left:0;
+  height:3em;
+  overflow:hidden;
+  pointer-events:none;
+  &.open{
+    pointer-events:auto;
+  }
+}
+
+.snackbar-content{
+  background-color:rgba(0,0,0,.8);
+  color:white;
+  height:3em;
+  padding:0 1em;
+  margin:auto;
+  width:50%;
+  transform:translateY(3em);
+  transition:transform .3s ease;
+
+}
+
+.error .snackbar-content{
+  background-color:rgba(205,32,13,.8);
+}
+
+.open .snackbar-content{
+  transform:translateY(0);
+}
+
+.snackbar-action{
+  color:$lightBarney;
+  &:hover{
+    color:white;
+    cursor:pointer;
+  }
+}
+
+.error .snackbar-action{
+  color:rgba(0,0,0,.8);
+}
+
+@media(max-width:414px){
+  .snackbar-content{
+    width:auto;
+  }
+  .snackbar-container{
+    top:0;
+  }
+  .snackbar-content{
+    transform:translateY(-3em);
+  }
+}

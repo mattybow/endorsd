@@ -1,0 +1,17 @@
+@import "variables";
+.endorser-list-info{
+  width:400px;
+}
+.endorser-list-tag{
+  font-size:.8em;
+  padding:.1em .5em;
+  margin-right:.2em;
+  background-color: $whiteBarney;
+  border-radius:2px;
+}
+
+@media(max-width:414px){
+  .endorser-list-info{
+    width:210px;
+  }
+}
