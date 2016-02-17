@@ -1,4 +1,10 @@
-import { RECEIVE_ENDORSEMENTS } from '../constants/endorsementTypes';
+import { RECEIVE_ENDORSEMENTS,
+         REQUEST_SEARCH_TERMS,
+         RECEIVE_SEARCH_TERM_RESULTS,
+         REQUEST_SEARCH_TERM_FAILED,
+         REQUEST_SEARCH,
+         REQUEST_SEARCH_FAILED,
+         RECEIVE_SEARCH_RESULTS } from '../constants/endorsementTypes';
 import { openSnackbar } from './snackbarActions';
 import * as api from './api';
 
@@ -21,14 +27,49 @@ function receiveEndorsements(data){
 }
 
 
-export function saveEndorsementEdits(data){
-  return (dispatch,getState) => {
-    return api.saveEndorsementEdits(data).then(
+export function searchTerms(term){
+  return (dispatch, getState) => {
+    dispatch(requestSearchTerms())
+    api.getSearchTerms(term).then(
       data => {
-        dispatch(openSnackbar('SUCCESS', 'Changes Saved'));
-        dispatch(getEndorsements());
+        dispatch(receiveSearchTermResults(data.data))
       },
-      console.log
-    );
+      err => {
+        dispatch(requestSearchTermFail(err))
+      }
+    )
+  }
+}
+
+function requestSearchTerms(){
+  return {
+    type:REQUEST_SEARCH_TERMS
+  }
+}
+
+function requestSearchTermFail(err){
+  return {
+    type:REQUEST_SEARCH_TERM_FAILED,
+    err
+  }
+}
+
+function receiveSearchTermResults(data){
+  return {
+    type: RECEIVE_SEARCH_TERM_RESULTS,
+    data
+  }
+}
+
+export function executeSearch(data){
+  return (dispatch, getState) => {
+    dispatch(requestSearchResults());
+    api.getSearchResults()
+  }
+}
+
+function requestSearchResults(){
+  return {
+    type:REQUEST_SEARCH
   }
 }

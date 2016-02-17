@@ -1,0 +1,28 @@
+@import "./variables.scss";
+
+.filter-tab{
+  padding:10px 20px;
+  border-bottom:1px solid transparent;
+  &:hover{
+    cursor:pointer;
+  }
+  &.active{
+    border-bottom:1px solid $lavendar;
+  }
+}
+.filter{
+  width:85%;
+  margin-left:5%;
+  margin-top:20px;
+  height:300px;
+  flex:0 0 auto;
+}
+#us-map svg{
+  width:100%;
+}
+
+#us {
+  fill: $lavendar;
+  stroke: rgba(0,0,0,.1);
+  stroke-width: 1;
+}

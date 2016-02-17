@@ -7,37 +7,46 @@ const debug = require('debug')('endorsement-data-interface:api-routes');
 const transaction = new MysqlTransaction(mysqldb);
 const router = express.Router();
 
-router.get('/tweets',(req,res) => {
-  if(req.session.passport){
-    mongodb.twStream.find({},null,{sort:{created_time:-1}, limit: 1000},(err,data)=>{
-      res.json(data);
-    });
-  } else {
-    res.status(401)
-       .json([]);
-  }
-
-});
+router.post('/terms', (req,res) => {
+  const {term} = req.body;
+  mysqldb.query(`(SELECT
+                      en.name value, en.end_id id, en.avatar avatar, 'Endorser' type
+                  FROM
+                      endorsements e
+                          JOIN
+                      endorsers en ON e.end_id = en.end_id
+                  WHERE
+                      en.name LIKE '% ${term}%' OR en.name LIKE '${term}%'
+                  ORDER BY e.created DESC
+                  LIMIT 5) UNION (SELECT
+                      CONCAT(c.first_name, ' ', c.last_name) value,
+                      c.can_id id,
+                      c.avatar avatar,
+                      'Candidate' type
+                  FROM
+                      candidates c
+                  WHERE
+                      First_Name LIKE '${term}%'
+                          OR Last_name LIKE '${term}%'
+                  ORDER BY last_name ASC)`, (err,results) => {
+                  res.json(results);
+                })
+})
 
 router.get('/candidates',(req,res) => {
-  if(req.session.passport){
-    mysqldb.query(`SELECT CAN_ID as id,
-                      FIRST_NAME as firstName,
-                      MIDDLE_NAME as middleName,
-                      LAST_NAME as lastName,
-                      PARTY as party,
-                      GENDER as gender,
-                      DOB as dob,
-                      AVATAR as avatar,
-                      ACTIVE as active
-                      FROM CANDIDATES
-                    ORDER BY FIRST_NAME;`, (err,results) => {
-      res.json(results);
-    });
-  } else {
-    res.status(401)
-       .json([]);
-  }
+  mysqldb.query(`SELECT CAN_ID as id,
+                    FIRST_NAME as firstName,
+                    MIDDLE_NAME as middleName,
+                    LAST_NAME as lastName,
+                    PARTY as party,
+                    GENDER as gender,
+                    DOB as dob,
+                    AVATAR as avatar,
+                    ACTIVE as active
+                    FROM CANDIDATES
+                  ORDER BY FIRST_NAME;`, (err,results) => {
+    res.json(results);
+  });
 });
 
 router.get('/candidate',(req,res) => {

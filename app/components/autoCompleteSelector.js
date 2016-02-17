@@ -25,7 +25,7 @@ class AutoCompleteDropdown extends Component{
   };
   callClose = (ev) => {
     ev.preventDefault();
-    ev.stopPropagation();
+    //ev.stopPropagation();
     this.props.closeClickHandler();
   };
   renderChoices(){
@@ -33,43 +33,24 @@ class AutoCompleteDropdown extends Component{
       const tagClasses = cx("dropdown-choice", {selected:choice.isSelected}, {highlighted:choice.isHighlighted});
       return <div className={tagClasses}
            key={choice.id}
+           onMouseEnter={() => {
+             this.props.mouseEnterHandler(index);
+           }}
            onClick={ev => {
+             console.log('click');
              ev.stopPropagation();
              this.props.selectionClickHandler(choice);
            }}>
-        {choice.isNoChoice ? this.props.renderNoChoices(this.props.enteredText) : this.props.renderChoice(choice) }
+        { this.props.renderChoice(choice) }
       </div>
     });
-    console.log(this.props.choices);
     return renderedChoices;
   }
   render(){
-    return <div className="dropdown-container"
-                onClick={this.callClose}
-                onKeyPress={ev=>{
-                  console.log(ev);
-                }}>
-        <button className="btn-default btn-naked no-border"
-                style={{
-                  position:'absolute',
-                  right: '-3em',
-                  top: 0
-                }}
-                onClick={this.callClose}>
-          <span className="icon-close icon-lg"></span>
-        </button>
-        <div className="esc-hint" style={{
-            fontSize:'.8em',
-            margin:'0 .2em 1em 0',
-            padding: '0 1em'
-          }}>
-          <span className="key-block">esc</span>
-          <span>to close</span>
-        </div>
+    return <div className="dropdown-container">
         <div className={this.props.containerClass}>
           {this.renderChoices()}
         </div>
-
     </div>;
   }
 }
@@ -88,8 +69,9 @@ export default class AutoCompleteSelector extends Component{
     const lowercaseTagName = tagName.toLowerCase();
     return this.props.tags.find( tag => tag.value === lowercaseTagName );
   }
-  handleTagInputChange(term){
+  handleInputChange(term){
     this.setState({searchTerm:term});
+    this.props.inputChangeHandler(term);
   }
   handleClearClick(){
     this.setState({searchTerm:''});
@@ -101,17 +83,13 @@ export default class AutoCompleteSelector extends Component{
         const { onEnter, closeOnSelect } = this.props;
         const selectedChoice = this.getFilteredChoices().find( choice => choice.isHighlighted );
 
-        if(selectedChoice.isNoChoice){
-          ev.target.select();
-          newValue && onEnter && onEnter(newValue);
-
-        } else {
-          this.props.selectionHandler(selectedChoice);
-        }
-
+        this.props.selectionHandler(selectedChoice);
         if(closeOnSelect){
           ev.target.blur();
           this.handleAutoCompCloseClick();
+        }
+        if(!selectedChoice.isDefault){
+          this.setState({searchTerm:selectedChoice.value});
         }
         break;
       case DOWN_KEY:
@@ -122,8 +100,6 @@ export default class AutoCompleteSelector extends Component{
         ev.preventDefault();
         this.handleUpDownKey(UP_KEY);
         break;
-      default:
-        this.resetHighlightedIndex();
     }
 
       // const duplicateTag = this.isDuplicateTag(newTag);
@@ -137,32 +113,41 @@ export default class AutoCompleteSelector extends Component{
       // }
       // ev.target.select();
   }
-  resetHighlightedIndex(){
-    this.setState({highlightedIndex:0});
-  }
+  // resetHighlightedIndex(){
+  //   this.setState({highlightedIndex:0});
+  // }
 
   handleUpDownKey(whichKey){
     const index = this.state.highlightedIndex;
 
     switch(whichKey){
       case DOWN_KEY:
-        this.setState({highlightedIndex:index + 1});
+        this.setHighlightedIndex(index + 1);
         break;
       case UP_KEY:
-        this.setState({highlightedIndex:index - 1});
+        this.setHighlightedIndex(index - 1);
         break;
     }
 
   }
   handleSelectionClick = (choice) => {
+    console.log('click');
     const {selectionHandler, closeOnSelect} = this.props;
-    selectionHandler && selectionHandler(choice);
+    selectionHandler && selectionHandler(choice, this.state.searchTerm);
     if(closeOnSelect){
       this.handleAutoCompCloseClick();
     }
+    console.log(choice);
+    if(!choice.isDefault){
+      console.log(choice.value);
+      this.setState({searchTerm:choice.value});
+    }
   };
   handleAutoCompCloseClick = () => {
-    this.setState({showChoices:false, searchTerm:''});
+    this.setState({showChoices:false});
+  };
+  setHighlightedIndex = (index) => {
+    this.setState({highlightedIndex:index});
   };
   getIndex(rawIndex, limit){
     if(rawIndex < 0){
@@ -176,32 +161,16 @@ export default class AutoCompleteSelector extends Component{
     }
   };
   getFilteredChoices(){
-    let regExFilter='';
-    const { searchTerm } = this.state;
+    const choices = [
+      {text:'show all results',
+      id:'0000',
+      isDefault:true},
+      ...this.props.choices
+    ]
 
-    switch(searchTerm.length){
-      case 0:
-        break;
-      case 1:
-        regExFilter = `^${searchTerm}`;
-        break;
-      default:
-        regExFilter = `${searchTerm}`;
-    }
-    const filteredChoices = this.props.choices.filter( choice => {
-      return choice.value.match(new RegExp(regExFilter, 'i')) ? true : false;
-    })
+    const highlightedIndex = this.getIndex(this.state.highlightedIndex,choices.length);
 
-    if(this.state.searchTerm){
-      filteredChoices.push({
-        id:'0000',
-        isNoChoice:true
-      });
-    }
-
-    const highlightedIndex = this.getIndex(this.state.highlightedIndex,filteredChoices.length);
-
-    return filteredChoices.map((choice,index) => (
+    return choices.map((choice,index) => (
       {...choice, isHighlighted: index === highlightedIndex}
     )).map(choice => {
       const isSelected = this.props.selected.find( selection => selection.id === choice.id);
@@ -214,6 +183,7 @@ export default class AutoCompleteSelector extends Component{
                                  {...this.props}
                                  enteredText={this.state.searchTerm}
                                  choices={this.getFilteredChoices()}
+                                 mouseEnterHandler={this.setHighlightedIndex}
                                  selectionClickHandler= {this.handleSelectionClick}/>;
   }
   render(){
@@ -222,11 +192,15 @@ export default class AutoCompleteSelector extends Component{
     const autoCompleteClasses = cx("auto-complete-container", {open: showChoices});
     return <div style={{position:'relative',
     width:'100%'}}>
+      {showChoices && searchTerm ? <div className="close-click-receiver"
+           onClick={this.handleAutoCompCloseClick}>
+      </div> : ''}
+
       <div className="search-input-holder" style={{position:'relative'}}>
         <button className={closeIconClasses}
              style={{
                       position:'absolute',
-                      right:0,
+                      right:12,
                       top:'0.8em'
                     }}
              onClick = {()=> {this.handleClearClick()}}>
@@ -234,17 +208,18 @@ export default class AutoCompleteSelector extends Component{
 
         <input type="text"
                style={{paddingRight:'1em'}}
-               placeholder={this.props.inputPlaceholder}
+               placeholder={this.props.placeholderText}
                value={searchTerm}
                onFocus={ev => {
-                 this.setState({showChoices:true})
+                 ev.target.select();
+                 this.setState({showChoices:true});
                }}
                onKeyDown={ev => {
                  console.log('hi')
                  this.handleSpecialKeys(ev);
                }}
                onChange={ev => {
-                 this.handleTagInputChange(ev.target.value);
+                 this.handleInputChange(ev.target.value);
                }}/>
 
         <div className={autoCompleteClasses}
@@ -253,7 +228,7 @@ export default class AutoCompleteSelector extends Component{
                  left:0,
                  width:'100%'
                }}>
-           { showChoices ? this.renderAutoComplete() : ''}
+           { showChoices && searchTerm ? this.renderAutoComplete() : ''}
          </div>
       </div>
     </div>;

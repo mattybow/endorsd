@@ -14,6 +14,10 @@ export function deleteTweet(id){
   });
 }
 
+export function getSearchTerms(term){
+  return axios.post('/api/terms',{term});
+}
+
 export function addCandidate(data){
   return axios.post('/api/addCandidate',data);
 }

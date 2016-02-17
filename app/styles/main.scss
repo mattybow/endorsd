@@ -119,8 +119,8 @@ body{
 }
 button{
   background-color:transparent;
-  border:1px solid $barney;
-  color: $barney;
+  border:1px solid $merlot;
+  color: $periwinkle;
   outline:none;
 }
 
@@ -198,7 +198,7 @@ a{
 
 .icon-flush-right{
   &:before{
-    margin-right:0;
+    margin-right:-8px;
   }
 }
 
