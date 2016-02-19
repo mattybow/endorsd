@@ -6,3 +6,4 @@ export const RECEIVE_ENDORSEMENTS            = 'RECEIVE_ENDORSEMENTS';
 export const REQUEST_SEARCH                  = 'REQUEST_SEARCH';
 export const REQUEST_SEARCH_FAILED           = 'REQUEST_SEARCH_FAILED';
 export const RECEIVE_SEARCH_RESULTS          = 'RECEIVE_SEARCH_RESULTS';
+export const CLEAR_SEARCH_RESULTS            = 'CLEAR_SEARCH_RESULTS';

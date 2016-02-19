@@ -31,6 +31,54 @@ router.post('/terms', (req,res) => {
                   ORDER BY last_name ASC)`, (err,results) => {
                   res.json(results);
                 })
+});
+
+router.post('/search', (req,res) => {
+  const {type, id, term} = req.body;
+  const endorsementQuery = `SELECT
+                                e.id,
+                                ee.name endorser,
+                                e.end_id,
+                                ee.avatar end_avatar,
+                                CONCAT(c.first_name, ' ', c.last_name) candidate,
+                                c.can_id,
+                                c.avatar can_avatar,
+                                CONVERT_TZ(e.date, '+00:00', '+06:00') date,
+                                e.source,
+                                e.confirmed,
+                                e.modified,
+                                e.quote,
+                                ee.descript
+                            FROM
+                                candidates c
+                                    JOIN
+                                endorsements e ON c.can_id = e.can_id
+                                    JOIN
+                                endorsers ee ON e.end_id = ee.end_id`;
+  let whereClause = ''
+  switch (type) {
+    case 'Endorser':
+      whereClause = `WHERE ee.end_id = ${mysqldb.escape(id)}`
+      break;
+    case 'Candidate':
+      whereClause = `WHERE c.can_id = ${mysqldb.escape(id)}`
+      break;
+    case 'Search':
+      whereClause = `WHERE ee.name LIKE '% ${term}%' OR
+                           ee.name LIKE '${term}%' OR
+                           c.First_Name LIKE '${term}%' OR
+                           c.Last_name LIKE '${term}%'`
+      break;
+  }
+  if(whereClause){
+    const query = `${endorsementQuery} ${whereClause};`
+    mysqldb.query(query, (err,results) => {
+      res.json(results);
+    });
+  } else {
+    res.status(401)
+     .json([]);
+  }
 })
 
 router.get('/candidates',(req,res) => {

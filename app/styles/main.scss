@@ -126,7 +126,7 @@ button{
 
 
 a{
-  color:white;
+  color:$periwinkle;
   text-decoration:none;
 }
 
@@ -206,8 +206,9 @@ a{
   -webkit-overflow-scrolling: touch;
 }
 
-#tab-contents{
-  margin:0 70px 20px 70px;
+.page-contents{
+  padding-top:80;
+  margin-left:auto;
 }
 .fader{
   transition:opacity .2s ease;
@@ -222,6 +223,13 @@ a{
   position:fixed;
   bottom:3em;
   right:3em;
+}
+
+#endorsements-page-content{
+  max-width:700px;
+}
+.page-content-holder{
+  margin:0 10% 0 30%;
 }
 
 @media(max-width:414px){

@@ -2,12 +2,14 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import { igDate } from '../util';
 import Avatar from './avatar';
+import shouldPureComponentUpdate from 'react-pure-render/function';
 import { colors } from '../styles/inlineConstants';
 import '../styles/endorsementList.scss'
 
 const {periwinkle, grey} = colors;
 
 export default class EndorsementList extends Component{
+  shouldComponentUpdate = shouldPureComponentUpdate;
   renderEndorsements() {
     return this.props.endorsements.map(endorsement => {
       const { can_id, end_avatar, can_avatar, endorser, candidate, id, date, confirmed, descript} = endorsement;
@@ -71,7 +73,9 @@ export default class EndorsementList extends Component{
     })
   }
   render(){
+    const startTime = new Date().valueOf();
     const endorsements = this.renderEndorsements();
+    console.log('render took ', new Date().valueOf()-startTime, ' ms');
     return <div>
       {endorsements}
     </div>;

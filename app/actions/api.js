@@ -18,6 +18,11 @@ export function getSearchTerms(term){
   return axios.post('/api/terms',{term});
 }
 
+export function getSearchResults(choice){
+  return axios.post('/api/search',{...choice});
+}
+
+
 export function addCandidate(data){
   return axios.post('/api/addCandidate',data);
 }

@@ -3,7 +3,6 @@ import FormContainer from './formContainer';
 import ModalWrapper from './modalWrapper';
 import EndorsementList from './endorsementList';
 import SearchBox from './searchBox';
-import PageHolder from './pageHolder';
 import cx from 'classnames';
 import { colors } from '../styles/inlineConstants';
 import { connect } from 'react-redux';
@@ -27,11 +26,13 @@ const { lavendar, periwinkle } = colors;
 function selectData(state,props){
   return {
     endorsements:state.endorsements,
-    candidates:state.candidates
+    candidates:state.candidates,
+    isLoadingSearchResults: state.searchResults.searchResultsLoading,
+    endorsementSearchResults: state.searchResults.searchResults
   }
 }
 
-class EndorsementsTab extends Component{
+class EndorsementsPage extends Component{
   constructor(props){
     super(props);
     this.state = {
@@ -117,97 +118,91 @@ class EndorsementsTab extends Component{
     });
   }
   render(){
-    console.log(`translateX(${-1*(this.state.activeFilter * 85 - 5)}%)`);
-    return <PageHolder pageName="Endorsements">
-      <div style={{
-          paddingTop:80
+    console.log(this.props);
+    return <div className="page-contents" id="endorsements-page-content">
+      <div className="search-box flex-parent-row"
+        style={{
+          padding:"0 5%"
         }}>
-        <div className="search-box flex-parent-row"
+        <SearchBox placeholderText="Search"/>
+        <button className="btn-naked no-border"
           style={{
-            padding:"0 5%"
-          }}>
-          <SearchBox placeholderText="Search"/>
-          <button className="btn-naked no-border"
-            style={{
-              marginLeft:'1em'
-            }}
-            onClick={this.toggleFilter}>
-            <span className="icon-filter icon-lg icon-flush-right"></span>
-          </button>
-        </div>
-        <div id="filter-control-holder" style={{
-            position:'relative',
-          }}>
-          <div id="filter-controls"
-                style={{
-                    overflow:'hidden',
-                    position:'absolute',
-                    left:0,
-                    top:0,
-                    right:0,
-                    transition: 'height .3s ease',
-                    height: this.state.showFilters ? 400 : 0,
-                    padding:'0 5%',
-                  }}>
-            <div className="tabs flex-parent-row">
-              {['Candidate','Location','Tag','Time'].map((tabName,index) => {
-                const tabClasses = cx('filter-tab',{active:index===this.state.activeFilter});
-                return <div className={tabClasses}
-                  onClick={() => {this.setState({activeFilter:index})}}>
-                  {tabName}
-                </div>;
-              })}
-            </div>
-            <div className="filters-window"
+            marginLeft:'1em'
+          }}
+          onClick={this.toggleFilter}>
+          <span className="icon-filter icon-lg icon-flush-right"></span>
+        </button>
+      </div>
+      <div id="filter-control-holder" style={{
+          position:'relative',
+        }}>
+        <div id="filter-controls"
               style={{
-                margin:'0',
-                overflow:'hidden',
-              }}>
-              <div className="filters flex-parent-row"
-                style={{
-                  transition:'transform .3s ease',
-                  transform:`translateX(${-1*(this.state.activeFilter * 90 - (this.state.activeFilter=== 0 ? 0 : 1) * 2.5)}%)`
+                  overflow:'hidden',
+                  position:'absolute',
+                  left:0,
+                  top:0,
+                  right:0,
+                  transition: 'height .3s ease',
+                  height: this.state.showFilters ? 400 : 0,
+                  padding:'0 5%',
                 }}>
-                <div className="filter flex-parent-row wrap flex-row-center">
-                  {this.props.candidates.map(candidate => <div style={{width:80, margin:'0 5'}}>
+          <div className="tabs flex-parent-row">
+            {['Candidate','Location','Tag','Time'].map((tabName,index) => {
+              const tabClasses = cx('filter-tab',{active:index===this.state.activeFilter});
+              return <div className={tabClasses} key={index}
+                onClick={() => {this.setState({activeFilter:index})}}>
+                {tabName}
+              </div>;
+            })}
+          </div>
+          <div className="filters-window"
+            style={{
+              margin:'0',
+              overflow:'hidden',
+            }}>
+            <div className="filters flex-parent-row"
+              style={{
+                transition:'transform .3s ease',
+                transform:`translateX(${-1*(this.state.activeFilter * 90 - (this.state.activeFilter=== 0 ? 0 : 1) * 2.5)}%)`
+              }}>
+              <div className="filter flex-parent-row wrap flex-row-center">
+                {this.props.candidates.map(candidate => <div style={{width:80, margin:'0 5'}} key={candidate.id}>
 
-                    <div style={{
-                      width:70,
-                      margin:'0 auto 5'
-                    }}>
-                      <img src={candidate.avatar}
-                          alt=""
-                          style={{
-                            width:70
-                          }}/>
-                    </div>
-                    <div style={{textAlign:'center',fontSize:'.8em', borderTop:'1px solid rgba(255,255,255,.1)'}}>{candidate.lastName}</div>
+                  <div style={{
+                    width:70,
+                    margin:'0 auto 5'
+                  }}>
+                    <img src={candidate.avatar}
+                        alt=""
+                        style={{
+                          width:70
+                        }}/>
+                  </div>
+                  <div style={{textAlign:'center',fontSize:'.8em', borderTop:'1px solid rgba(255,255,255,.1)'}}>{candidate.lastName}</div>
 
-                  </div>)}
-                </div>
-                <div className="filter flex-parent-row"><div ref="usMap" id="us-map"
-                  style={{
-                    width:'100%',
-                    height:'100%'
-                  }}></div></div>
-                <div className="filter flex-parent-row"><div style={{margin:'auto'}}>Tags</div></div>
-                <div className="filter flex-parent-row"><div style={{margin:'auto'}}>Time Filter</div></div>
+                </div>)}
               </div>
+              <div className="filter flex-parent-row"><div ref="usMap" id="us-map"
+                style={{
+                  width:'100%',
+                  height:'100%'
+                }}></div></div>
+              <div className="filter flex-parent-row"><div style={{margin:'auto'}}>Tags</div></div>
+              <div className="filter flex-parent-row"><div style={{margin:'auto'}}>Time Filter</div></div>
             </div>
           </div>
         </div>
-        <div style={{
-            transition:'transform .3s ease',
-            transform:this.state.showFilters ? 'translateY(400px)' : 'translateY(0)'
-          }}>
-          <EndorsementList endorsements={this.props.endorsements}
-                            />
-        </div>
-
       </div>
-
-    </PageHolder>;
+      <div style={{
+          transition:'transform .3s ease',
+          transform:this.state.showFilters ? 'translateY(400px)' : 'translateY(0)'
+        }}>
+        <EndorsementList endorsements={this.props.endorsementSearchResults.length ? this.props.endorsementSearchResults : this.props.endorsements}
+                          />
+      </div>
+    </div>;
   }
 }
 
-export default connect(selectData)(EndorsementsTab);
+export default connect(selectData)(EndorsementsPage);

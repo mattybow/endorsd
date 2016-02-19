@@ -8,7 +8,9 @@ nav{
   margin:0 0 1px -20px;
   padding: 10px 20px 10px 10px;
   font-size:1em;
-  &:first-child{
+  color: $periwinkle;
+  border-left:1px solid transparent;
+  &.active{
     border-left:1px solid rgba(255,255,255,.3);
   }
 }

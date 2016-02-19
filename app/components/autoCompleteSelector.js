@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 import { compose } from 'redux';
+import Spinner from './spinner';
 import '../styles/autoComplete.scss';
 
 const ENTER_KEY = 13;
@@ -72,9 +73,13 @@ export default class AutoCompleteSelector extends Component{
   handleInputChange(term){
     this.setState({searchTerm:term});
     this.props.inputChangeHandler(term);
+    if(!term){
+      this.props.clearHandler();
+    }
   }
   handleClearClick(){
     this.setState({searchTerm:''});
+    this.props.clearHandler();
   }
   handleSpecialKeys(ev){
     switch (ev.which) {
@@ -83,7 +88,7 @@ export default class AutoCompleteSelector extends Component{
         const { onEnter, closeOnSelect } = this.props;
         const selectedChoice = this.getFilteredChoices().find( choice => choice.isHighlighted );
 
-        this.props.selectionHandler(selectedChoice);
+        this.props.selectionHandler(selectedChoice, this.state.searchTerm);
         if(closeOnSelect){
           ev.target.blur();
           this.handleAutoCompCloseClick();
@@ -131,7 +136,7 @@ export default class AutoCompleteSelector extends Component{
 
   }
   handleSelectionClick = (choice) => {
-    console.log('click');
+    console.log('click', this.state);
     const {selectionHandler, closeOnSelect} = this.props;
     selectionHandler && selectionHandler(choice, this.state.searchTerm);
     if(closeOnSelect){
@@ -205,6 +210,15 @@ export default class AutoCompleteSelector extends Component{
                     }}
              onClick = {()=> {this.handleClearClick()}}>
         </button>
+        <div className={this.props.isLoading ? 'delay-in' : ''}
+            style={{
+              position:'absolute',
+              right:30,
+              top:'0.8em',
+              visibility: this.props.isLoading ? 'visible' : 'hidden'
+            }}>
+          <Spinner />
+        </div>
 
         <input type="text"
                style={{paddingRight:'1em'}}

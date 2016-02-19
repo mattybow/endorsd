@@ -2,15 +2,15 @@ import React, { Component } from 'react';
 import AutoCompleteSelector from './autoCompleteSelector';
 import Avatar from './avatar';
 import { connect } from 'react-redux';
-import { searchTerms, executeSearch } from '../actions/endorsementActions';
+import { searchTerms, executeSearch, clearSearchResults } from '../actions/endorsementActions';
 import "../styles/searchBox.scss";
 import {colors} from '../styles/inlineConstants';
 
 const {grey, periwinkle} = colors;
 
 function selectData(state,props){
-  const { searchResults:{searchTermResults} } = state;
-  return { searchTermResults };
+  const { searchResults:{searchTermResults, searchTermResultsLoading} } = state;
+  return { searchTermResults, searchTermResultsLoading };
 }
 
 class SearchBox extends Component{
@@ -48,12 +48,16 @@ class SearchBox extends Component{
     console.log('handle selection')
     if(choice.isDefault){
       choice.term = searchTerm;
-      choice.type = 'search';
+      choice.type = 'Search';
     }
+    console.log(choice);
     this.props.dispatch(executeSearch(choice));
   };
   inputChangeHandler = (term) => {
     this.props.dispatch(searchTerms(term))
+  };
+  clearHandler = () => {
+    this.props.dispatch(clearSearchResults());
   };
   render(){
     return <AutoCompleteSelector
@@ -62,8 +66,10 @@ class SearchBox extends Component{
               renderNoChoices={this.renderNoChoices}
               closeOnSelect={true}
               selected={[]}
+              clearHandler = { this.clearHandler }
               choices={this.props.searchTermResults}
               selectionHandler={this.handleSelection}
+              isLoading={this.props.searchTermResultsLoading}
               inputChangeHandler = {this.inputChangeHandler}
               {...this.props}/>
   }
