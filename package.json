@@ -5,7 +5,7 @@
   "scripts": {
     "start": "source ./config/env.sh && DEBUG=endorsement-data-interface:* node ./server/index.js",
     "build": "babel-node ./server/build.js",
-    "deploy": "source ./config/env.sh && DEBUG=endorsement-data-interface:* pm2 start ./server/index.js --name dataInterface"
+    "deploy": "source ./config/env.sh && DEBUG=endorsement-data-interface:* pm2 start ./server/index.js --name endorsement-primary"
   },
   "dependencies": {
     "axios": "^0.8.0",
