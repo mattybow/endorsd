@@ -2,16 +2,14 @@
 
 nav{
   color: $periwinkle;
-  padding:1px 20px;
 }
 .nav-link{
-  margin:0 0 1px -20px;
-  padding: 10px 20px 10px 10px;
+  margin:5px 0 5px 0px;
+  padding: 5px 0 5px 10px;
   font-size:1em;
-  color: $periwinkle;
   border-left:1px solid transparent;
   &.active{
-    border-left:1px solid rgba(255,255,255,.3);
+    border-left:2px solid rgba(255,255,255,.3);
   }
 }
 @media(max-width: 414px){
@@ -19,7 +17,15 @@ nav{
     margin:10px 0;
     font-size:1.3em;
   }
-  nav{
-    border-bottom:1px solid #E7E7EC;
+  nav
+  .nav-link{
+    text-align:right;
+    margin:5px 0;
+    padding: 5px 10px 5px 0;
+    border-right:5px solid transparent;
+    &.active{
+      border-left:none;
+      border-right:5px solid rgba(255,255,255,.3);
+    }
   }
 }

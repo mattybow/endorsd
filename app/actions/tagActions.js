@@ -1,4 +1,4 @@
-import { REQUEST_TAGS, RECEIVE_TAGS, ADD_TAG, DELETE_TAG } from '../constants/tagTypes';
+import { REQUEST_TAGS, RECEIVE_TAGS, ADD_TAG, RECEIVE_ENDORSERS_BY_TAGS } from '../constants/tagTypes';
 import * as api from './api';
 
 export function getTags(){
@@ -15,14 +15,37 @@ export function getTags(){
   }
 }
 
-export function addTag(value){
+
+export function getEndorsersByTags(){
+  return (dispatch, getState) => {
+    return api.getEndorsersByTags().then(
+      data => {
+        dispatch(receiveEndorsersByTags(data.data))
+      },
+      err => {
+        console.log('err getting endorsers by tag', err)
+      }
+    )
+  }
+}
+
+export function getCommonEndorserTags(){
+  return (dispatch, getState) => {
+    return api.getCommonEndorserTags().then(
+      data => {
+        dispatch(receiveEndorsersByTags(data.data))
+      },
+      err => {
+        console.log('err getting endorsers by tag', err)
+      }
+    )
+  }
+}
+
+function receiveEndorsersByTags(data){
   return {
-    type: ADD_TAG,
-    tag : {
-      id:makeTagId(),
-      value,
-      isNew:true
-    }
+    type:RECEIVE_ENDORSERS_BY_TAGS,
+    data
   }
 }
 

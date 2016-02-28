@@ -9,7 +9,7 @@ if( NODE_ENV !== 'production'){
 }
 
 let debug = require('debug')('endorsement-data-interface:server');
-const port = normalizePort(PORT || '3000');
+const port = normalizePort(PORT || '4000');
 app.set('port', port);
 
 var server = http.createServer(app);

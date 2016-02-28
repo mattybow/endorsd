@@ -39,10 +39,11 @@ router.post('/search', (req,res) => {
                                 e.id,
                                 ee.name endorser,
                                 e.end_id,
-                                ee.avatar end_avatar,
-                                CONCAT(c.first_name, ' ', c.last_name) candidate,
+                                ee.avatar endAvatar,
+                                CONCAT(c.first_name, ' ', c.last_name) candidateName,
+                                c.last_name candidateLastName,
                                 c.can_id,
-                                c.avatar can_avatar,
+                                c.avatar canAvatar,
                                 CONVERT_TZ(e.date, '+00:00', '+06:00') date,
                                 e.source,
                                 e.confirmed,
@@ -90,9 +91,11 @@ router.get('/candidates',(req,res) => {
                     GENDER as gender,
                     DOB as dob,
                     AVATAR as avatar,
-                    ACTIVE as active
+                    ACTIVE as active,
+                    BANNER as banner,
+                    DESCRIPT as descript
                     FROM CANDIDATES
-                  ORDER BY FIRST_NAME;`, (err,results) => {
+                  ORDER BY ACTIVE DESC, LAST_NAME ASC;`, (err,results) => {
     res.json(results);
   });
 });
@@ -106,26 +109,85 @@ router.get('/candidate',(req,res) => {
   }
 });
 
-router.get('/endorsers',(req,res) => {
-  if(req.session.passport){
-    mysqldb.query(`SELECT AVATAR as avatar,
-                    NAME as name,
-                    e.END_ID as id,
-                    DESCRIPT as descript,
-                    IS_ORG as isOrg,
-                    WIKI_LINK as wikiLink,
-                    modified,
-                    group_concat(t.id) as tagIds,
-                    group_concat(t.tag_name) as tags
-                  FROM ENDORSERS e join ENDORSER_TAGS et on e.end_id = et.end_id
-                  join TAGS t on et.tag_id = t.id
-                  group by e.END_ID
-                  ORDER BY e.END_ID DESC;`, (err,results) => {
-      res.json(results);
-    });
+// router.get('/endorsers',(req,res) => {
+//   if(req.session.passport){
+//     mysqldb.query(`SELECT AVATAR as avatar,
+//                     NAME as name,
+//                     e.END_ID as id,
+//                     DESCRIPT as descript,
+//                     IS_ORG as isOrg,
+//                     WIKI_LINK as wikiLink,
+//                     modified,
+//                     group_concat(t.id) as tagIds,
+//                     group_concat(t.tag_name) as tags
+//                   FROM ENDORSERS e join ENDORSER_TAGS et on e.end_id = et.end_id
+//                   join TAGS t on et.tag_id = t.id
+//                   group by e.END_ID
+//                   ORDER BY e.END_ID DESC;`, (err,results) => {
+//       res.json(results);
+//     });
+//   } else {
+//     res.status(401)
+//        .json([]);
+//   }
+// });
+
+router.get('/endorsers',(req,res)=>{
+  const { tags } = req.query;
+  function queryWithTags(tags){
+    const selectStatement = ` SELECT
+                              en.end_id as endId,
+                              en.name,
+                              en.avatar,
+                              (SELECT
+                                      GROUP_CONCAT(t.tag_name
+                                              SEPARATOR ' ')
+                                  FROM
+                                      tags t
+                                  WHERE
+                                      t.id IN (${mysqldb.escape(tags)})) tagDescript
+                          FROM
+                              endorsers en`;
+    const existsClauses = tags.reduce((acc,tag) => {
+      if(acc) acc += " AND ";
+      acc += `EXISTS( SELECT
+                  1
+              FROM
+                  endorser_tags et
+              WHERE
+                  et.tag_id = '${tag}'
+                      AND et.end_id = en.end_id)`;
+      return acc;
+    },'')
+
+    const query = `${selectStatement} WHERE ${existsClauses}`;
+    return query;
+  }
+  if(tags){
+    let query = ''
+    if(typeof tags === 'string'){
+      query = queryWithTags(tags.split(','));
+    } else if (Array.isArray(tags)) {
+      query = tags.reduce((acc,tagGroup) => {
+        if(acc) acc += " UNION ";
+        acc += queryWithTags(tagGroup.split(','));
+        return acc;
+      },'')
+    }
+    // console.log(query);
+    // res.status(201).json({ok:true});
+    if(query){
+      mysqldb.query(query, (err,results) => {
+        if(err){
+          res.status(500).json({ok: false, err:err});
+        } else {
+          res.status(200).json(results);
+        }
+      });
+    }
+
   } else {
-    res.status(401)
-       .json([]);
+    res.status(401).json({ok:false});
   }
 });
 
@@ -134,10 +196,11 @@ router.get('/endorsements',(req,res) => {
                         e.id,
                         ee.name endorser,
                         e.end_id,
-                        ee.avatar end_avatar,
-                        CONCAT(c.first_name, ' ', c.last_name) candidate,
+                        ee.avatar endAvatar,
+                        CONCAT(c.first_name, ' ', c.last_name) candidateName,
+                        c.last_name candidateLastName,
                         c.can_id,
-                        c.avatar can_avatar,
+                        c.avatar canAvatar,
                         CONVERT_TZ(e.date,'+00:00','+06:00') date,
                         e.source,
                         e.confirmed,

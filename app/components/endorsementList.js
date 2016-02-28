@@ -1,41 +1,40 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import { igDate } from '../util';
-import Avatar from './avatar';
 import shouldPureComponentUpdate from 'react-pure-render/function';
+import DualAvatar from './dualAvatar';
 import { colors } from '../styles/inlineConstants';
+import {Link} from 'react-router';
 import '../styles/endorsementList.scss'
 
 const {periwinkle, grey} = colors;
 
-export default class EndorsementList extends Component{
-  shouldComponentUpdate = shouldPureComponentUpdate;
-  renderEndorsements() {
-    return this.props.endorsements.map(endorsement => {
-      const { can_id, end_avatar, can_avatar, endorser, candidate, id, date, confirmed, descript} = endorsement;
+export default class EndorsementList extends Component {
+  shouldComponentUpdate(props,state){
+    const verdict = shouldPureComponentUpdate.apply(this,arguments);
+    console.log(this.props,props, verdict, new Date().valueOf());
+    return verdict;
+  };
+  render(){
+    const startTime = new Date().valueOf();
+    const endorsements = this.renderEndorsements(this.props.endorsements);
+    console.log('render took ', new Date().valueOf()-startTime, ' ms', new Date().valueOf());
+    return <div>
+      {endorsements}
+    </div>;
+  }
+  renderEndorsements(endorsements) {
+    return endorsements.map(endorsement => {
+      const { can_id, endAvatar, canAvatar, endorser, candidateName, candidateLastName, id, date, confirmed, descript} = endorsement;
       return <div className="flex-parent-row start list-item-spacing endorsement-list-item" key={id}
         style={{
           padding:'15px 5% 15px 5%'
         }}>
-        <div className="heads"
-             style={{
-               position:'relative'
-             }}>
-          <Avatar url={end_avatar}
-                  size={50}/>
-          <div style={{
-              width:40,
-              height:40,
-              position:'absolute',
-              right:-20,
-              bottom:-20,
-              backgroundImage:`url(${can_avatar})`,
-              backgroundSize:'cover'
-            }}></div>
-        </div>
-        <div style={{marginLeft:40}} className="flex-child-expand">
+        <DualAvatar canAvatar={canAvatar}
+                    endAvatar={endAvatar}/>
+        <div className="flex-child-expand endorser-list-item-container">
           <div className="flex-parent-row start">
-            <div className="flex-child-expand">
+            <div className="flex-child-expand endorser-info">
               <div style={{
                   color:periwinkle
                 }}>
@@ -60,24 +59,19 @@ export default class EndorsementList extends Component{
             }}></div>
             <div style={{ fontSize:'.8em', color:'white'}}>
               <span>{confirmed ? "endorsed" : "will endorse"}</span>
-                <span style={{
-                        color:periwinkle
-                      }}> {candidate}
-                </span>
+                <Link to={`/endorsements/candidate/${candidateLastName}`}
+                      onClick={()=>{
+                        console.log("setting local storage val", window.scrollY);
+                        localStorage.setItem("endorsements-pos", window.scrollY);
+                      }}>
+                  <span style={{
+                          color:periwinkle
+                        }}> {candidateName}
+                  </span>
+                </Link>
               </div>
-
-
-
         </div>
       </div>
     })
-  }
-  render(){
-    const startTime = new Date().valueOf();
-    const endorsements = this.renderEndorsements();
-    console.log('render took ', new Date().valueOf()-startTime, ' ms');
-    return <div>
-      {endorsements}
-    </div>;
   }
 }

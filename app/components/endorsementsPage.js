@@ -6,9 +6,9 @@ import SearchBox from './searchBox';
 import cx from 'classnames';
 import { colors } from '../styles/inlineConstants';
 import { connect } from 'react-redux';
+import {VelocityTransitionGroup} from 'velocity-react';
 import { getEndorsements } from '../actions/endorsementActions';
 import { fetchCandidatesIfNeeded } from '../actions/candidateActions';
-// import Datamap from 'datamaps/dist/datamaps.usa.min';
 import d3 from 'd3';
 import topojson from 'topojson';
 import '../styles/endorsementsPage.scss';
@@ -24,11 +24,18 @@ const { lavendar, periwinkle } = colors;
 
 
 function selectData(state,props){
+  const { endorsements,
+          candidates,
+          searchResults: {
+            searchResultsLoading,
+            searchResults
+          }
+        } = state
   return {
-    endorsements:state.endorsements,
-    candidates:state.candidates,
-    isLoadingSearchResults: state.searchResults.searchResultsLoading,
-    endorsementSearchResults: state.searchResults.searchResults
+    endorsements,
+    candidates,
+    isLoadingSearchResults: searchResultsLoading,
+    endorsementSearchResults: searchResults
   }
 }
 
@@ -41,11 +48,29 @@ class EndorsementsPage extends Component{
       activeFilter:0,
     }
   }
+  componentDidMount(){
+    console.log(localStorage.getItem("endorsements-pos"));
+    this.scrollToPreviousPos();
+  }
   componentWillMount(){
     this.props.dispatch(fetchCandidatesIfNeeded());
     this.props.dispatch(getEndorsements());
   }
-  componentDidMount(){
+  componentDidUpdate(){
+    if(!this.props.children){
+      setTimeout(()=> {
+        this.scrollToPreviousPos();
+        console.log("set scroll pos");
+      },50);
+    }
+    if(this.state.showFilters){
+      this.renderD3map();
+    }
+  }
+  scrollToPreviousPos(){
+    window.scrollTo(0,parseInt(localStorage.getItem("endorsements-pos")));
+  }
+  renderD3map(){
     var w = this.refs.usMap.offsetWidth;
     var h = 300;
     var proj = d3.geo.albersUsa();
@@ -73,7 +98,7 @@ class EndorsementsPage extends Component{
     }
 
     function redraw() {
-      var start = new Date().valueOf();
+      //var start = new Date().valueOf();
       // d3.event.translate (an array) stores the current translation from the parent SVG element
       // t (an array) stores the projection's default translation
       // we add the x and y vales in each array to determine the projection's new translation
@@ -87,7 +112,7 @@ class EndorsementsPage extends Component{
 
       // redraw the map
       us.selectAll("path").attr("d", path);
-      console.log('redraw done', new Date().valueOf() - start, 'ms');
+      //console.log('redraw done', new Date().valueOf() - start, 'ms');
     }
   }
   searchTermFromDb = (term) => {
@@ -101,35 +126,59 @@ class EndorsementsPage extends Component{
   toggleFilter = () => {
     this.setState({showFilters:!this.state.showFilters})
   };
-  renderMap(){
-    return new Datamap({
-      element: this.refs.usMap,
-      scope: 'usa',
-      width:this.refs.usMap.offsetWidth,
-      height:300,
-      geographyConfig: {
-        borderWidth: 1,
-        borderColor:'rgba(0,0,0,0.1)',
-        highlightFillColor: periwinkle,
-        highlightBorderColor:'transparent',
-        highlightBorderWidth:1
-      },
-      data:usStatesData
-    });
+  renderFilterControls(){
+    return <div className="filters flex-parent-row"
+      style={{
+        transition:'transform .3s ease',
+        transform:`translateX(${-1*(this.state.activeFilter * 90 - (this.state.activeFilter=== 0 ? 0 : 1) * 2.5)}%)`
+      }}>
+      <div className="filter flex-parent-row wrap flex-row-center">
+        {this.props.candidates.map(candidate => <div style={{width:80, margin:'0 5'}} key={candidate.id}>
+
+          <div style={{
+            width:70,
+            margin:'0 auto 5'
+          }}>
+            <img src={candidate.avatar}
+                alt=""
+                style={{
+                  width:70
+                }}/>
+          </div>
+          <div style={{textAlign:'center',fontSize:'.8em', borderTop:'1px solid rgba(255,255,255,.1)'}}>{candidate.lastName}</div>
+
+        </div>)}
+      </div>
+      <div className="filter flex-parent-row"><div ref="usMap" id="us-map"
+        style={{
+          width:'100%',
+          height:'100%'
+        }}></div></div>
+      <div className="filter flex-parent-row"><div style={{margin:'auto'}}>Tags</div></div>
+      <div className="filter flex-parent-row"><div style={{margin:'auto'}}>Time Filter</div></div>
+    </div>;
   }
-  render(){
-    console.log(this.props);
-    return <div className="page-contents" id="endorsements-page-content">
+  renderChildren(key){
+    //console.log('children', styles[0].style.x);
+    return <div style={{
+        position:'absolute',top:0,left:0,right:0,bottom:0,zIndex:10
+                }}
+                key={key}>
+                <div>
+                  {this.props.children}
+                </div>
+            </div>;
+  }
+  renderList(key){
+    console.log('render list [endorsementsPage.js]')
+    return  <div key={key}>
       <div className="search-box flex-parent-row"
         style={{
           padding:"0 5%"
         }}>
         <SearchBox placeholderText="Search"/>
         <button className="btn-naked no-border"
-          style={{
-            marginLeft:'1em'
-          }}
-          onClick={this.toggleFilter}>
+                onClick={this.toggleFilter}>
           <span className="icon-filter icon-lg icon-flush-right"></span>
         </button>
       </div>
@@ -161,36 +210,7 @@ class EndorsementsPage extends Component{
               margin:'0',
               overflow:'hidden',
             }}>
-            <div className="filters flex-parent-row"
-              style={{
-                transition:'transform .3s ease',
-                transform:`translateX(${-1*(this.state.activeFilter * 90 - (this.state.activeFilter=== 0 ? 0 : 1) * 2.5)}%)`
-              }}>
-              <div className="filter flex-parent-row wrap flex-row-center">
-                {this.props.candidates.map(candidate => <div style={{width:80, margin:'0 5'}} key={candidate.id}>
-
-                  <div style={{
-                    width:70,
-                    margin:'0 auto 5'
-                  }}>
-                    <img src={candidate.avatar}
-                        alt=""
-                        style={{
-                          width:70
-                        }}/>
-                  </div>
-                  <div style={{textAlign:'center',fontSize:'.8em', borderTop:'1px solid rgba(255,255,255,.1)'}}>{candidate.lastName}</div>
-
-                </div>)}
-              </div>
-              <div className="filter flex-parent-row"><div ref="usMap" id="us-map"
-                style={{
-                  width:'100%',
-                  height:'100%'
-                }}></div></div>
-              <div className="filter flex-parent-row"><div style={{margin:'auto'}}>Tags</div></div>
-              <div className="filter flex-parent-row"><div style={{margin:'auto'}}>Time Filter</div></div>
-            </div>
+            { this.state.showFilters ? this.renderFilterControls() : '' }
           </div>
         </div>
       </div>
@@ -198,9 +218,36 @@ class EndorsementsPage extends Component{
           transition:'transform .3s ease',
           transform:this.state.showFilters ? 'translateY(400px)' : 'translateY(0)'
         }}>
-        <EndorsementList endorsements={this.props.endorsementSearchResults.length ? this.props.endorsementSearchResults : this.props.endorsements}
-                          />
+        <EndorsementList endorsements={this.props.endorsementSearchResults.length ?
+            this.props.endorsementSearchResults : this.props.endorsements}/>
       </div>
+    </div>
+  }
+  _willLeave(){
+    return {x:spring(-50,{stiffness: 120, damping: 14})}
+  }
+  _willEnter(){
+    return {x:50}
+  }
+  render(){
+    console.log(this.props);
+    const routerState = this.props.location.state;
+    const { back } = routerState || {};
+    console.log(back)
+    return <div id="endorsements-page-content">
+      <VelocityTransitionGroup enter={{
+                                  animation:back ? "transition.slideLeftIn" : "transition.slideRightIn",
+                                  duration:200
+                                }}
+                                leave={{
+                                  animation:back ? "transition.slideRightOut" : "transition.slideLeftOut",
+                                  duration:200
+                                }}
+                                >
+        {this.props.children ?
+          this.renderChildren('a') :
+          this.renderList('b')}
+      </VelocityTransitionGroup>
     </div>;
   }
 }

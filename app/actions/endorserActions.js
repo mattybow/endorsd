@@ -21,16 +21,3 @@ function receiveEndorsers(data){
     data
   }
 }
-
-
-export function saveEndorserEdits(data){
-  return (dispatch, getState) => {
-    return api.saveEndorserEdits(data).then(
-      response => {
-        dispatch(openSnackbar('SUCCESS','Changes Saved'));
-        dispatch(getEndorsersIfNeeded());
-      },
-      console.log
-    )
-  }
-}

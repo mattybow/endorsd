@@ -11,12 +11,15 @@ import * as api from './api';
 
 export function getEndorsements(){
   return (dispatch,getState) => {
-    api.getEndorsements().then(
-      data => {
-        dispatch(receiveEndorsements(data.data));
-      },
-      console.log
-    )
+    if(!getState().endorsements.length){
+      console.log('getting endorsements from server');
+      api.getEndorsements().then(
+        data => {
+          dispatch(receiveEndorsements(data.data));
+        },
+        console.log
+      )
+    }
   }
 }
 

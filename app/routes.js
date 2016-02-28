@@ -4,6 +4,13 @@ import App from './components/app';
 import EndorsementsPage from './components/endorsementsPage';
 import CandidatesPage from './components/candidatesPage';
 import EndorsersPage from './components/endorsersPage';
+import CandidateDetails from './components/candidateDetails';
+
+class PlaceHolderComp extends React.Component {
+  render(){
+    return <div>place holder</div>
+  }
+}
 
 export default (
   <Route path="/" component={App}>
@@ -12,8 +19,13 @@ export default (
            component={EndorsementsPage}
            onEnter={(nextState, replace) => {
              console.log(nextState);
-           }}/>
-    <Route path="candidates" component={CandidatesPage}/>
+           }}>
+      <Route path="candidate/:name" component={CandidateDetails} />
+      <Route path="endorser/:name" component={PlaceHolderComp} />
+    </Route>
+    <Route path="candidates" component={CandidatesPage}>
+      <Route path="candidate/:name" component={CandidateDetails} />
+    </Route>
     <Route path="endorsers" component={EndorsersPage}/>
   </Route>
 );

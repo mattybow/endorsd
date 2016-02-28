@@ -1,9 +1,26 @@
+#endorsements-page-content{
+  position:relative
+}
 .endorsement-list-item{
   transition:background .2s ease;
   background-color:transparent;
   border-radius:2px;
-  &:hover{
+}
+.no-touch {
+  .endorsement-list-item:hover{
     background-color:rgba(0,0,0,.1);
-    cursor:pointer;
+    cursor:default;
+  }
+}
+.endorser-list-item-container{
+  margin-left:40px;
+}
+@media(max-width:414px){
+  .endorser-info{
+    max-width:250px;
+    margin-right:10px;
+  }
+  .endorser-list-item-container{
+    margin-left:30px;
   }
 }

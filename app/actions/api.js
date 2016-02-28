@@ -22,6 +22,13 @@ export function getSearchResults(choice){
   return axios.post('/api/search',{...choice});
 }
 
+export function getEndorsersByTags(){
+  return axios.get('/api/endorsersByTag');
+}
+
+export function getCommonEndorserTags(){
+  return axios.get('/api/endorsers?tags=T1453761705692&tags=T1453245283798&tags=T1453331304790&tags=T1453330985272')
+}
 
 export function addCandidate(data){
   return axios.post('/api/addCandidate',data);

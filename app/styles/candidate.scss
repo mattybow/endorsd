@@ -1,0 +1,82 @@
+@import './variables.scss';
+.candidate-list-item{
+  width:31%;
+  margin:0 1.5% 1.5% 0;
+  position:relative;
+  -webkit-box-sizing: border-box;
+  display:inline-block;
+}
+.banner{
+  height:200px;
+  width:100%;
+  overflow:hidden;
+  position:relative;
+  &.big{
+    height:400px
+  }
+}
+.banner-bg{
+  opacity:.5;
+  height:100%;
+  transition: transform .2s ease;
+  background-size:cover;
+  background-position:0% 0%;
+  transform-origin:50% 50%;
+}
+.no-touch{
+  .candidate-list-item:hover{
+    .banner-filter{
+      background-color:rgba(0,0,0,0.3);
+    }
+  }
+
+}
+.banner-filter{
+  position:absolute;
+  top:0;
+  bottom:0;
+  right:0;
+  left:0;
+  transition: background .5s ease;
+  background-color:rgba(0,0,0,0.5);
+}
+.candidate-head-container{
+  position:absolute;
+  top:170px;
+  left:0;
+  right:0;
+}
+.brick-layout{
+  -moz-column-count:3;
+  -moz-column-gap: 3%;
+  -moz-column-width: 30%;
+  -webkit-column-count:3;
+  -webkit-column-gap: 3%;
+  -webkit-column-width: 30%;
+  column-count: 3;
+  column-gap: 3%;
+  column-width: 30%;
+}
+.candidates-filter-choice{
+  text-align:center;
+  padding: 0 5px 5px;
+  margin: 0 2em;
+  &.active{
+    border-bottom:2px solid $lavendar;
+  }
+  &:first-child, &:last-child{
+    margin:0
+  }
+  &:hover{
+    cursor:pointer;
+  }
+}
+.back-button-holder{
+  padding:1.5em 1em;
+}
+.tri{
+  height:200%;
+  width:200%;
+  transform:rotateZ(-60deg) translate3d(0,-15%,0);
+  background-color:rgba(255,255,255,.1);
+}
